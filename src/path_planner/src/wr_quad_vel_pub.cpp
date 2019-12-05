@@ -52,18 +52,45 @@ int main(int argc, char** argv){
     turtlebot_state_listener turtlebot_state_listener;
     ros::Subscriber turtlebot_state_sub = node.subscribe("/ugv/odom", 20, &turtlebot_state_listener::turtlebot_state_callback, &turtlebot_state_listener);
 
+    // now let's convert the turtlebot velocity to the world frame
+    // to do this we must listen to the tf topic for ugv/base_link
+    // to the world. but note that we don't have translation for 
+    // velocity:
+    // create a transform listener
+    tf::TransformListener tf_listener;
 
+    // a variable to save the ugv/base_link to the world transform.
+    tf::StampedTransform ugv_world_transform;
+    // a transform derived from ugv wrt world for transforming 
+    // velocity without translation.
+    tf::Transform ugv_world_vel_transform;
 
+    while (node.ok())
+    {
 
+        ros::Time current = ros::Time::now();
 
+        // subscribing to the ugv wrt world transform
+        try
+        {
+            tf_listener.waitForTransform("world", "/ugv/base_link", current, ros::Duration(3.0));
+            tf_listener.lookupTransform("world", "/ugv/base_link", current, ugv_world_transform);
+        }
+        catch(tf::TransformException ex)
+        {
+            ROS_ERROR("%s", ex.what());
+            ros::Duration(1.0).sleep();
+        }
+        // now ugv to world without translation
+        ugv_world_vel_transform.
+        
+        
 
-
-
-
-
-
-
-    ros::spin();
+        // this is for checking the topics and subscribing
+        // to them in each loop.
+        ros::spinOnce();        
+    }
+    
 
 
     return 0;
