@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<launch>
+    <!-- <arg name="world_name" default="$(find land_sim)/worlds/landig_site.world"/> -->
+
+    <include file="$(find hector_gazebo_worlds)/launch/start.launch">
+        <!-- <arg name="world" value="$(arg world_name)"/> -->
+        <arg name="world" value="$(find land_sim)/worlds/land_site.world"/>
+    </include>
+</launch>
