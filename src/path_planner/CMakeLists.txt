@@ -205,3 +205,5 @@ include_directories(
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
+add_executable(Q_wr_vel src/wr_quad_vel_pub.cpp)
+target_link_libraries(Q_wr_vel ${catkin_LIBRARIES})
