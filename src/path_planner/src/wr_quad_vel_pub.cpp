@@ -124,8 +124,8 @@ int main(int argc, char** argv){
         // subscribing to the ugv wrt world transform
         try
         {
-            tf_listener.waitForTransform("world", "/ugv/base_link", current, ros::Duration(3.0));
-            tf_listener.lookupTransform("world", "/ugv/base_link", current, ugv_world_transform);
+            tf_listener.waitForTransform("world", "ugv/base_link", current, ros::Duration(3.0));
+            tf_listener.lookupTransform("world", "ugv/base_link", current, ugv_world_transform);
         }
         catch(tf::TransformException ex)
         {

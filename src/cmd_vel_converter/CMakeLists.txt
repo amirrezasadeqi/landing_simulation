@@ -206,3 +206,6 @@ include_directories(
 # catkin_add_nosetests(test)
 add_executable(quad_orientation_broadcaster src/quad_ori_tf_br.cpp)
 target_link_libraries(quad_orientation_broadcaster ${catkin_LIBRARIES})
+
+add_executable(cmd_vel_wtoQ src/cmd_vel_wtoQ.cpp)
+target_link_libraries(cmd_vel_wtoQ ${catkin_LIBRARIES})
