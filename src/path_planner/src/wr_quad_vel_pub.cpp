@@ -116,9 +116,9 @@ int main(int argc, char** argv){
         tf::Stamped<tf::Vector3> turtle_vel_in, turtle_vel_out;
         turtle_vel_in.frame_id_ = "turtlebot_orientation";
         turtle_vel_in.stamp_ = current;
-        turtle_vel_in.x = turtlebot_state_listener.turtlebot_state.twist.twist.linear.x;
-        turtle_vel_in.y = turtlebot_state_listener.turtlebot_state.twist.twist.linear.y;
-        turtle_vel_in.z = turtlebot_state_listener.turtlebot_state.twist.twist.linear.z;
+        turtle_vel_in.setX(turtlebot_state_listener.turtlebot_state.twist.twist.linear.x);
+        turtle_vel_in.setY(turtlebot_state_listener.turtlebot_state.twist.twist.linear.y);
+        turtle_vel_in.setZ(turtlebot_state_listener.turtlebot_state.twist.twist.linear.z);
 
 
         // subscribing to the ugv wrt world transform
@@ -154,8 +154,8 @@ int main(int argc, char** argv){
         // the turtlebot for x_td.
         // TODO: change the code for moving landing target.
 
-        cmd_vel.x = turtle_vel_out.x + (d_dot / d_0) * (quad_state_listener.quadrotor_initial_state.pose.pose.position.x - turtlebot_state_listener.turtlebot_initial_state.pose.pose.position.x);
-        cmd_vel.y = turtle_vel_out.y + (d_dot / d_0) * (quad_state_listener.quadrotor_initial_state.pose.pose.position.y - turtlebot_state_listener.turtlebot_initial_state.pose.pose.position.y);
+        cmd_vel.x = turtle_vel_out.getX() + (d_dot / d_0) * (quad_state_listener.quadrotor_initial_state.pose.pose.position.x - turtlebot_state_listener.turtlebot_initial_state.pose.pose.position.x);
+        cmd_vel.y = turtle_vel_out.getY() + (d_dot / d_0) * (quad_state_listener.quadrotor_initial_state.pose.pose.position.y - turtlebot_state_listener.turtlebot_initial_state.pose.pose.position.y);
         cmd_vel.z = (d_dot / d_0) * (quad_state_listener.quadrotor_initial_state.pose.pose.position.z - turtlebot_state_listener.turtlebot_initial_state.pose.pose.position.z);
 
         // now publish the quadrotor velocity command with respaect to the world

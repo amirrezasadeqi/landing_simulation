@@ -44,7 +44,7 @@ int main(int argc, char** argv){
         quad_xy_frame.setRotation(tf::Quaternion(0, 0, 0, 1));
 
         // turtlebot orientation frame
-        turtlebot_ori_frame.setOrigin(rf::Vector3(0, 0, 0));
+        turtlebot_ori_frame.setOrigin(tf::Vector3(0, 0, 0));
         turtlebot_ori_frame.setRotation(vel_transform.getRotation());
         
 
