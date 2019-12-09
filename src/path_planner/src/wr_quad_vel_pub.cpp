@@ -2,8 +2,8 @@
 #include<tf/transform_listener.h>
 #include<nav_msgs/Odometry.h>
 #include<geometry_msgs/Vector3.h>
+#include<geometry_msgs/Point.h>
 #include<math.h>
-
 
 // parameters of landing algorithm
 float kdg, desired_time;
@@ -89,19 +89,19 @@ int main(int argc, char** argv){
     tf::TransformListener tf_listener;
 
     // a variable to save the ugv/base_link to the world transform.
-    tf::StampedTransform ugv_world_transform;
+    //tf::StampedTransform ugv_world_transform;
     // a transform derived from ugv wrt world for transforming 
     // velocity without translation.
-    tf::Transform ugv_world_vel_transform;
+    //tf::Transform ugv_world_vel_transform;
     
     ros::Time start_time = ros::Time::now();
 
     // variable to save the quadrotor velocity command to send to ros 
     // network
-    geometry_msgs::Vector3 cmd_vel;
+    geometry_msgs::Point cmd_vel;
 
     // publisher to publish the cmd_vel
-    ros::Publisher cmd_vel_pub = node.advertise<geometry_msgs::Vector3>("cmd_vel_wr", 10);
+    ros::Publisher cmd_vel_pub = node.advertise<geometry_msgs::Point>("cmd_vel_wr", 10);
 
     ros::Rate rate(20);
 
@@ -113,7 +113,7 @@ int main(int argc, char** argv){
         double time = current.toSec() - start_time.toSec();
 
         // an stamped point to save the turtlebot velocity in base_link and world frames
-        tf::Stamped<tf::Vector3> turtle_vel_in, turtle_vel_out;
+        tf::Stamped<tf::Point> turtle_vel_in, turtle_vel_out;
         turtle_vel_in.frame_id_ = "turtlebot_orientation";
         turtle_vel_in.stamp_ = current;
         turtle_vel_in.setX(turtlebot_state_listener.turtlebot_state.twist.twist.linear.x);
@@ -124,8 +124,10 @@ int main(int argc, char** argv){
         // subscribing to the ugv wrt world transform
         try
         {
-            tf_listener.waitForTransform("world", "ugv/base_link", current, ros::Duration(3.0));
-            tf_listener.lookupTransform("world", "ugv/base_link", current, ugv_world_transform);
+            tf_listener.waitForTransform("world", "turtlebot_orientation", current, ros::Duration(3.0));
+            //tf_listener.lookupTransform("world", "ugv/base_link", current, ugv_world_transform);
+            tf_listener.transformPoint("world", turtle_vel_in, turtle_vel_out);
+
         }
         catch(tf::TransformException ex)
         {
@@ -133,13 +135,13 @@ int main(int argc, char** argv){
             ros::Duration(1.0).sleep();
         }
         // now ugv to world without translation
-        ugv_world_vel_transform.setOrigin(tf::Vector3(0, 0, 0));
-        ugv_world_vel_transform.setRotation(ugv_world_transform.getRotation());
+        //ugv_world_vel_transform.setOrigin(tf::Vector3(0, 0, 0));
+        //ugv_world_vel_transform.setRotation(ugv_world_transform.getRotation());
         
 
-        tf::Transformer transformer;
+        //tf::Transformer transformer;
         // we use turtle_vel_out for vm in the path plannin algorithm
-        transformer.transformPoint("world", turtle_vel_in, turtle_vel_out);
+        //transformer.transformPoint("world", turtle_vel_in, turtle_vel_out);
 
         // let's determine the d_0
         if (turtlebot_state_listener.count == 1){
