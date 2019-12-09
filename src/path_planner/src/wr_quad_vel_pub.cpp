@@ -1,3 +1,7 @@
+// TODO:
+// after the td we must say to quadrotor to stop
+// if not the commands which we send to /cmd_vel_wr
+// are nan.
 #include<ros/ros.h>
 #include<tf/transform_listener.h>
 #include<nav_msgs/Odometry.h>
@@ -88,13 +92,8 @@ int main(int argc, char** argv){
     // create a transform listener
     tf::TransformListener tf_listener;
 
-    // a variable to save the ugv/base_link to the world transform.
-    //tf::StampedTransform ugv_world_transform;
-    // a transform derived from ugv wrt world for transforming 
-    // velocity without translation.
-    //tf::Transform ugv_world_vel_transform;
-    
-    ros::Time start_time = ros::Time::now();
+   
+    ros::Time start_time;
 
     // variable to save the quadrotor velocity command to send to ros 
     // network
@@ -111,6 +110,7 @@ int main(int argc, char** argv){
     {
         
         ros::Time current = ros::Time::now();
+        if(while_count == 1) start_time = current;
         
         double time = current.toSec() - start_time.toSec();
 
@@ -127,7 +127,6 @@ int main(int argc, char** argv){
         try
         {
             tf_listener.waitForTransform("world", "turtlebot_orientation", current, ros::Duration(3.0));
-            //tf_listener.lookupTransform("world", "ugv/base_link", current, ugv_world_transform);
             tf_listener.transformPoint("world", turtle_vel_in, turtle_vel_out);
 
         }
@@ -136,21 +135,13 @@ int main(int argc, char** argv){
             ROS_ERROR("%s", ex.what());
             ros::Duration(1.0).sleep();
         }
-        // now ugv to world without translation
-        //ugv_world_vel_transform.setOrigin(tf::Vector3(0, 0, 0));
-        //ugv_world_vel_transform.setRotation(ugv_world_transform.getRotation());
-        
-
-        //tf::Transformer transformer;
-        // we use turtle_vel_out for vm in the path plannin algorithm
-        //transformer.transformPoint("world", turtle_vel_in, turtle_vel_out);
 
         // adding some debugging lines of code:
-        std::cout << "the velocity commands are: x = " << turtle_vel_out.getX() << "  y =  " << turtle_vel_out.getY() << "  z =  " << turtle_vel_out.getZ() << std::endl;
+        //std::cout << "the velocity commands are: x = " << turtle_vel_out.getX() << "  y =  " << turtle_vel_out.getY() << "  z =  " << turtle_vel_out.getZ() << std::endl;
 
         // let's determine the d_0
         //if (turtlebot_state_listener.count == 1){
-        if (while_count == 0){
+        if (while_count == 1){
             // some debugging 
             tf::Point quad_init, turtle_init;
             quad_init.setX(quad_state_listener.quadrotor_initial_state.pose.pose.position.x);
@@ -160,21 +151,25 @@ int main(int argc, char** argv){
             turtle_init.setY(turtlebot_state_listener.turtlebot_initial_state.pose.pose.position.y);
             turtle_init.setZ(turtlebot_state_listener.turtlebot_initial_state.pose.pose.position.z);
 
-            std::cout << "initial x position of the quadrotor and turtlebot are respectivly: " << double(quad_init.getX()) << " " << turtle_init.getX() << std::endl;
-            std::cout << "initial y position of the quadrotor and turtlebot are respectivly: " << double(quad_init.getY()) << " " << turtle_init.getY() << std::endl;
-            std::cout << "initial z position of the quadrotor and turtlebot are respectivly: " << double(quad_init.getZ()) << " " << turtle_init.getZ() << std::endl;
+            // these are some debugging logs
+            //std::cout << "initial x position of the quadrotor and turtlebot are respectivly: " << double(quad_init.getX()) << " " << turtle_init.getX() << std::endl;
+            //std::cout << "initial y position of the quadrotor and turtlebot are respectivly: " << double(quad_init.getY()) << " " << turtle_init.getY() << std::endl;
+            //std::cout << "initial z position of the quadrotor and turtlebot are respectivly: " << double(quad_init.getZ()) << " " << turtle_init.getZ() << std::endl;
 
             d_0 = sqrt(pow((quad_init.getX() - turtle_init.getX()), 2) + pow((quad_init.getY() - turtle_init.getY()), 2) + pow((quad_init.getZ() - turtle_init.getZ()), 2));
         }
 
         // debugging for d_0
-        std::cout << "d_0 is : " << d_0 << std::endl;
+        //std::cout << "d_0 is : " << d_0 << std::endl;
 
         // determine d_dot
-        double d_dot = (((-2 * d_0 * time) / (kdg * pow(td.toSec(), (2 / kdg)))) * pow((pow(td.toSec(), 2) - pow(time, 2)), ((1 / kdg) - 1)));
+        double d_dot;
+        if(while_count != 0){
+            d_dot = (((-2 * d_0 * time) / (kdg * pow(td.toSec(), (2 / kdg)))) * pow((pow(td.toSec(), 2) - pow(time, 2)), ((1 / kdg) - 1)));
+        }
 
         // debugging for the d_dot
-        std::cout << "d_dot is : " << d_dot << std::endl;
+        //std::cout << "d_dot is : " << d_dot << std::endl;
 
         // now determine the quadrotor velocity command and publish it to the ros network
         // note that we use for now the landing target stoped so use the initial state of
@@ -197,8 +192,6 @@ int main(int argc, char** argv){
 
         rate.sleep();    
     }
-    
-
-
+   
     return 0;
 }
