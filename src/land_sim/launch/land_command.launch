@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<launch>
+ 
+    <node pkg="path_planner" type="Q_wr_vel" name="pathPlanner_node" args="0.4 30.0" respawn="false" 
+    output="screen" />
+
+    <node pkg="cmd_vel_converter" type="cmd_vel_wtoQ" name="conv_vel_toQ" respawn="false" output="screen" />
+    
+</launch>

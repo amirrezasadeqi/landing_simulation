@@ -2,6 +2,8 @@
 // after the td we must say to quadrotor to stop
 // if not the commands which we send to /cmd_vel_wr
 // are nan.
+// this TODO is solved!!!
+
 #include<ros/ros.h>
 #include<tf/transform_listener.h>
 #include<nav_msgs/Odometry.h>
@@ -176,9 +178,18 @@ int main(int argc, char** argv){
         // the turtlebot for x_td.
         // TODO: change the code for moving landing target.
 
-        cmd_vel.x = turtle_vel_out.getX() + (d_dot / d_0) * (quad_state_listener.quadrotor_initial_state.pose.pose.position.x - turtlebot_state_listener.turtlebot_initial_state.pose.pose.position.x);
-        cmd_vel.y = turtle_vel_out.getY() + (d_dot / d_0) * (quad_state_listener.quadrotor_initial_state.pose.pose.position.y - turtlebot_state_listener.turtlebot_initial_state.pose.pose.position.y);
-        cmd_vel.z = (d_dot / d_0) * (quad_state_listener.quadrotor_initial_state.pose.pose.position.z - turtlebot_state_listener.turtlebot_initial_state.pose.pose.position.z);
+        if(time <= desired_time){
+
+            cmd_vel.x = turtle_vel_out.getX() + (d_dot / d_0) * (quad_state_listener.quadrotor_initial_state.pose.pose.position.x - turtlebot_state_listener.turtlebot_initial_state.pose.pose.position.x);
+            cmd_vel.y = turtle_vel_out.getY() + (d_dot / d_0) * (quad_state_listener.quadrotor_initial_state.pose.pose.position.y - turtlebot_state_listener.turtlebot_initial_state.pose.pose.position.y);
+            cmd_vel.z = (d_dot / d_0) * (quad_state_listener.quadrotor_initial_state.pose.pose.position.z - turtlebot_state_listener.turtlebot_initial_state.pose.pose.position.z);
+        }
+        else
+        {
+            cmd_vel.x = 0;
+            cmd_vel.y = 0;
+            cmd_vel.z = 0;
+        }
 
         // now publish the quadrotor velocity command with respaect to the world
         cmd_vel_pub.publish(cmd_vel);
